@@ -12,6 +12,10 @@ import SpriteKit
 class GameScene: SKScene {
     override func didMove(to view: SKView) {
         // this method is called when your game scene is ready to run
+        
+        let background = SKSpriteNode(imageNamed: "space.jpg") // load the image as a sprite
+        background.zPosition = -1 // set position behind others
+        addChild(background) // add the sprite to the scene
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
