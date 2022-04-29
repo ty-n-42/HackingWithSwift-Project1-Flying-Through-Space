@@ -13,9 +13,17 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         // this method is called when your game scene is ready to run
         
+        // add a background image: starfield
         let background = SKSpriteNode(imageNamed: "space.jpg") // load the image as a sprite
         background.zPosition = -1 // set position behind others
         addChild(background) // add the sprite to the scene
+        
+        // add scrolling particles: moving space dust
+        if let particles = SKEmitterNode(fileNamed: "SpaceDust") { // load the particle effect
+            particles.position.x = 512 // position the emitter
+            particles.advanceSimulationTime(10) // advance the emitter simulation 10 seconds so the particles fill the view
+            addChild(particles) // add the emitter to the scene
+        }
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
