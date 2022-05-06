@@ -7,10 +7,12 @@
 //
 
 import SpriteKit
+import CoreMotion // for accessing device accelerometer and gyroscope
 
 @objcMembers
 class GameScene: SKScene {
     let player = SKSpriteNode(imageNamed: "player-rocket.png") // player sprite as a property
+    let motionManager = CMMotionManager() // gives access to core motion
     
     override func didMove(to view: SKView) {
         // this method is called when your game scene is ready to run
@@ -31,6 +33,8 @@ class GameScene: SKScene {
         player.position.x = -400 // set x position
         player.zPosition = 1 // set z position so infront of background and starfield
         addChild(player) // add the sprite to the scene
+        
+        motionManager.startAccelerometerUpdates() // start collecting accelerometer data
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -43,6 +47,13 @@ class GameScene: SKScene {
 
     override func update(_ currentTime: TimeInterval) {
         // this method is called before each frame is rendered
+        
+        if let accelerometerData = motionManager.accelerometerData { // read the accelerometer
+            let changeX = CGFloat(accelerometerData.acceleration.y) * 100 // calculate the change left-right
+            let changeY = CGFloat(accelerometerData.acceleration.x) * 100 // calculate the change up-down
+            player.position.x -= changeX // move the player horizontally
+            player.position.y += changeY // move the player vertically
+        }
     }
 }
 
