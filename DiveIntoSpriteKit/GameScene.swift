@@ -13,6 +13,7 @@ import CoreMotion // for accessing device accelerometer and gyroscope
 class GameScene: SKScene {
     let player = SKSpriteNode(imageNamed: "player-rocket.png") // player sprite as a property
     let motionManager = CMMotionManager() // gives access to core motion
+    var gameTimer: Timer? // timer for regularly creating asteroids
     
     override func didMove(to view: SKView) {
         // this method is called when your game scene is ready to run
@@ -35,6 +36,11 @@ class GameScene: SKScene {
         addChild(player) // add the sprite to the scene
         
         motionManager.startAccelerometerUpdates() // start collecting accelerometer data
+        
+        // schedue enemy creation using the game timer
+        gameTimer = Timer.scheduledTimer(withTimeInterval: TimeInterval(0.35), repeats: true) { _ in
+            self.createEnemy() // create enemy with random rotation
+        }
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -54,6 +60,20 @@ class GameScene: SKScene {
             player.position.x -= changeX // move the player horizontally
             player.position.y += changeY // move the player vertically
         }
+    }
+    
+    func createEnemy() {
+        let sprite = SKSpriteNode(imageNamed: "asteroid.png") // load the image as a sprite
+        sprite.position.x = CGFloat(1200) // set the x position - just off the right of the screen
+        sprite.position.y = CGFloat(Int.random(in: -350...350)) // set the y position randomly between the top and bottom
+        sprite.zPosition = 1 // set the z position the same as the player
+        sprite.name = "enemy" // set the sprite name
+        addChild(sprite) // add the sprite to the scene
+        
+        sprite.physicsBody = SKPhysicsBody(texture: sprite.texture!, size: sprite.size) // make a physics body with the sprite
+        sprite.physicsBody?.velocity = CGVector(dx: -500, dy: 0) // set the velocity of the physics body
+        sprite.physicsBody?.linearDamping = 0 // set the velocity dampening to 0 - none for space
+        sprite.physicsBody?.angularVelocity = CGFloat(Int.random(in: -5...5)) // set the spin
     }
 }
 
