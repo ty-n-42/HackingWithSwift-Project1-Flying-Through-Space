@@ -10,6 +10,8 @@ import SpriteKit
 
 @objcMembers
 class GameScene: SKScene {
+    let player = SKSpriteNode(imageNamed: "player-rocket.png") // player sprite as a property
+    
     override func didMove(to view: SKView) {
         // this method is called when your game scene is ready to run
         
@@ -24,6 +26,11 @@ class GameScene: SKScene {
             particles.advanceSimulationTime(10) // advance the emitter simulation 10 seconds so the particles fill the view
             addChild(particles) // add the emitter to the scene
         }
+        
+        // add the player sprite - created as class property
+        player.position.x = -400 // set x position
+        player.zPosition = 1 // set z position so infront of background and starfield
+        addChild(player) // add the sprite to the scene
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
