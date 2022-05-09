@@ -10,7 +10,7 @@ import SpriteKit
 import CoreMotion // for accessing device accelerometer and gyroscope
 
 @objcMembers
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate { // SKPhysicsContactDelegate allows collision notifications to be received by this class
     let player = SKSpriteNode(imageNamed: "player-rocket.png") // player sprite as a property
     let motionManager = CMMotionManager() // gives access to core motion
     var gameTimer: Timer? // timer for regularly creating asteroids
@@ -35,12 +35,19 @@ class GameScene: SKScene {
         player.zPosition = 1 // set z position so infront of background and starfield
         addChild(player) // add the sprite to the scene
         
+        // add a physics body to the player
+        player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.size) // make a physics body with the sprite
+        player.physicsBody?.categoryBitMask = 1 // set identifier for contact testing (i.e. collision detection)
+        
         motionManager.startAccelerometerUpdates() // start collecting accelerometer data
         
         // schedue enemy creation using the game timer
         gameTimer = Timer.scheduledTimer(withTimeInterval: TimeInterval(0.35), repeats: true) { _ in
             self.createEnemy() // create enemy with random rotation
         }
+        
+        // declare that this object receives collision detection notifications
+        physicsWorld.contactDelegate = self
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -74,6 +81,27 @@ class GameScene: SKScene {
         sprite.physicsBody?.velocity = CGVector(dx: -500, dy: 0) // set the velocity of the physics body
         sprite.physicsBody?.linearDamping = 0 // set the velocity dampening to 0 - none for space
         sprite.physicsBody?.angularVelocity = CGFloat(Int.random(in: -5...5)) // set the spin
+        
+        sprite.physicsBody?.categoryBitMask = 0 // set identifier for contact testing (ie. collision detection)
+        sprite.physicsBody?.contactTestBitMask = 1 // define what other physics bodies to check for collision - compares with the other objects categoryBitMask
+    }
+    
+    // this method is called when the physics system detects a collision
+    func didBegin(_ contact: SKPhysicsContact) {
+        // get a reference to both objects that collided - quiting the method if either isn't available
+        guard let nodeA = contact.bodyA.node else { return }
+        guard let nodeB = contact.bodyB.node else { return }
+        
+        if nodeA == player {
+            playerHit(nodeB)
+        } else {
+            playerHit(nodeA)
+        }
+    }
+    
+    // the player hit the node
+    func playerHit(_ node: SKNode) {
+        player.removeFromParent() // remove the player
     }
 }
 
