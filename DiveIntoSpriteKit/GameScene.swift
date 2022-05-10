@@ -14,6 +14,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // SKPhysicsContactDelegate
     let player = SKSpriteNode(imageNamed: "player-rocket.png") // player sprite as a property
     let motionManager = CMMotionManager() // gives access to core motion
     var gameTimer: Timer? // timer for regularly creating asteroids
+    let scoreLabel = SKLabelNode(fontNamed: "AvenirNextCondensed-Bold") // label to show the score
+    var score: Int = 0 { // value of the score
+        didSet {
+            scoreLabel.text = "SCORE: \(score)" // update the score label when the score changes
+        }
+    }
     
     override func didMove(to view: SKView) {
         // this method is called when your game scene is ready to run
@@ -29,6 +35,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // SKPhysicsContactDelegate
             particles.advanceSimulationTime(10) // advance the emitter simulation 10 seconds so the particles fill the view
             addChild(particles) // add the emitter to the scene
         }
+        
+        // add label to the scene
+        scoreLabel.zPosition = 2 // set position in front of others
+        scoreLabel.position.y = 300 // position the score label
+        addChild(scoreLabel) // add the label to the scene
+        score = 0 // set the initial score to 0 - triggers the update of the score label
         
         // add the player sprite - created as class property
         player.position.x = -400 // set x position
@@ -66,6 +78,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // SKPhysicsContactDelegate
             let changeY = CGFloat(accelerometerData.acceleration.x) * 100 // calculate the change up-down
             player.position.x -= changeX // move the player horizontally
             player.position.y += changeY // move the player vertically
+            
+            if abs(changeX) + abs(changeY) <= 2 { // if there is a small movement increase the score
+                score += 1
+            }
         }
     }
     
