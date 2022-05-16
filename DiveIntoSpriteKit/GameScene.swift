@@ -20,6 +20,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // SKPhysicsContactDelegate
             scoreLabel.text = "SCORE: \(score)" // update the score label when the score changes
         }
     }
+    var touchingPlayer: Bool = false // indicate if the player sprite is being touched
     
     override func didMove(to view: SKView) {
         // this method is called when your game scene is ready to run
@@ -64,10 +65,42 @@ class GameScene: SKScene, SKPhysicsContactDelegate { // SKPhysicsContactDelegate
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         // this method is called when the user touches the screen
+        
+        guard let touch = touches.first else { return } // read a touch, if can't quit the method
+        
+        let location = touch.location(in: self) // find the location within this scene
+        let tappedNodes = nodes(at: location) // find the nodes at the touch location
+        if tappedNodes.contains(player) { // if the player is touched
+            touchingPlayer = true // trigger touching logic
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // this method is called when the user moves their touch
+        
+        guard touchingPlayer else { return } // don't do anything if the player isn't touched
+        guard let touch = touches.first else { return } // read a touch, if can't quit the method
+        
+        let location = touch.location(in: self) // get the location of the touch
+        player.position = location // set the player position to the location
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         // this method is called when the user stops touching the screen
+        
+        guard touchingPlayer else { return } // don't do anything if the player isn't touched
+        if touches.first == nil { return } // read a touch, if can't quit the method
+        
+        touchingPlayer = false // disable touching logic
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // this method is called when the system interrupts a user touching the screen
+        
+        guard touchingPlayer else { return } // don't do anything if the player isn't touched
+        if touches.first == nil { return } // read a touch, if can't quit the method
+
+        touchingPlayer = false // disable touching logic
     }
 
     override func update(_ currentTime: TimeInterval) {
